@@ -29,8 +29,12 @@ router.get('/profile', async (req, res) => {
   }
 });
 
-// Allow access to all-users without token checking
-router.get('/all-users', async (req, res) => {
+router.get('/all-users', jwtMiddleware, async (req, res) => {
+  const userRoles = req.userData.roles;
+  
+  if (!userRoles.includes('admin')) {
+    return res.status(403).json({ message: 'Forbidden: Admin can access this endpoint.' });
+  }
   try {
     const users = await User.find({});
     console.log(users);
@@ -40,4 +44,5 @@ router.get('/all-users', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 module.exports = router;
