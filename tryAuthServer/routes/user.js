@@ -37,7 +37,6 @@ router.get('/all-users', jwtMiddleware, async (req, res) => {
   }
   try {
     const users = await User.find({});
-    console.log(users);
     res.status(200).json(users);
   } catch (error) {
     console.error(error);

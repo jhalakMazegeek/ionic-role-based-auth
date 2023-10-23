@@ -76,4 +76,29 @@ router.post('/refresh', (req, res) => {
   }
 });
 
+//Delete a User
+// Add this to your Express routes
+router.delete('/delete/:id', async (req, res) => {
+  console.log("DELETE route accessed");
+  const { id } = req.params;
+
+  // Ensure that the user is an admin before allowing deletion
+  const { roles } = req.userData;
+  if (!roles.includes('admin')) {
+      return res.status(403).json({ message: 'Access Denied' });
+  }
+
+  try {
+      const user = await User.findByIdAndDelete(id);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 module.exports = router;
