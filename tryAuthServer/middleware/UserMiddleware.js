@@ -6,7 +6,8 @@ const User = require('../models/User');
 
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, roles } = req.body;
+    const { name, email, password } = req.body;
+    const roles = req.body.roles || ['user'];
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({ name, email, password: hashedPassword, roles });
@@ -99,5 +100,34 @@ router.delete('/delete/:id', async (req, res) => {
   }
 });
 
+router.put('/update/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { name, email, roles } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId, 
+      {
+        $set: {
+          name: name,
+          email: email, 
+          roles: roles
+        }
+      },
+      {
+        new: true
+      }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 module.exports = router;
